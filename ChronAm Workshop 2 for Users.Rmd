@@ -108,7 +108,7 @@ for (k in seq_along(years)) {
 }
 ```
 
-In order to save ourselves the time of re-downloading on the shared lab computers we're using for this workshop, I've saved the results as a .csv file, which we can read in now instead.
+If you no longer have this data on your computer for whatever reason (e.g., the shared lab computers for our workshop re-image every night), don't sweat: I've saved the results as a .csv file, which we can read in instead.
 
 ```{r}
 by_month <- read.csv("sn85035720_date+pages.csv") %>% select(-X)
@@ -188,7 +188,7 @@ str_split(hits$Collocates[which(hits$Page==7)], " ")
 
 The contexts of these references *should* fit what we would broadly expect for page seven (references to Jack London do at least).
 
-We can generate a visualization to graph what percentage of references to the search phrase appears on each page to further explore page distribution.
+We can generate a visualization to graph what percentage of references to the search phrase appears on each page to further explore page distribution. (Don't forget `ggtitle`.)
 
 ```{r, warning=FALSE}
 graph <- hits %>% 
@@ -211,7 +211,7 @@ graph %>%
   scale_fill_discrete(name="Page")
 ```
 
-With a bit of extra fiddling, we can generate a visualization to compare the distribution of references by page for multiple search phrases.
+With a bit of extra fiddling, we can generate a visualization to compare the distribution of references by page for multiple search phrases. If you downloaded all these files you'll be able to run this code yourself; if not, you can see the results in the .pdf file for this workshop.
 
 ```{r, echo=FALSE, warning=FALSE}
 hits1 <- read.csv("andrew_carnegie_sn85035720.csv") %>% mutate(Content = "Andrew Carnegie")
@@ -320,13 +320,13 @@ hits[hits$Unique=="No",-7]
 kable(hits[hits$Unique=="No",7])
 ```
 
-For some searches, there may appear to be no reprinted material in the *Perth Amboy Evening News*. This result is misleading, however, when working with only one newspaper to begin with. It is almost certainly true, to take Jack London as an example, that the *Evening News*' announcements of magazines' contents for the month were reprints of the standard announcements found in newspapers across the country. Uniqueness analysis won't reflect this unless the data includes several newspapers, ideally five or six from the same time span.
+For some searches, there may appear to be no reprinted material in the *Perth Amboy Evening News*. This result is misleading, however, when working with only one newspaper to begin with. It is almost certainly true, to take Jack London as an example, that the *Evening News*' announcements of magazine contents for the month were reprints of the standard announcements found in newspapers across the country. Uniqueness analysis won't reflect this unless the data includes several newspapers, ideally five or six from the same time span.
 
 This is not the case, however, for references to the Russo-Japanese War. There are nine hits, mostly from the same month, that are clearly all the same reprint - not of news per se but of a particularly topical advertisement. 
 
 But reprints aren't semantically meaningless!^[See Ryan Cordell and David A. Smith's [Viral Texts Project](http://viraltexts.org/) and M. H. Beals' [Scissors and Paste Database](http://scissorsandpaste.net/) for two important, ongoing efforts to understand the significance of reprinting in nineteenth-century newspapers. See also McGill, Meredith. *American Literature and the Culture of Reprinting, 1834-1853*. Philadelphia: University of Pennsylvania Press, 2003.] They should never be excluded from data; rather, we should try to ascertain what kind of content and conditions cause an article referencing our name or phrase to be reprinted.
 
-To begin to do so, we can graph temporal distribution again with the addition of designating uniqueness as a categorical variable. When working with enough newspapers, this would illustrate the apprxoimate proportion of original references.
+To begin to do so, we can graph temporal distribution again with the addition of designating uniqueness as a categorical variable. When working with enough newspapers, this would illustrate the apprxoimate proportion of original references. (Don't forget `ggtitle`.)
 
 ```{r}
 plot <- hits %>%
