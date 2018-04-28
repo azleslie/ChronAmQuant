@@ -29,7 +29,7 @@ library("knitr")
 
 Welcome! In this workshop we'll be exploring one technique and one kind of dataset: fuzzy string matching in R and a batch of digitized newspapers from Chronicling America.^[My thanks to Nicole Sheriko and Andrew Goldstone for their feedback and advice on portions of the code included here.]
 
-The first step is to download the newspaper batch we'll be using [from Chronicling America](https://chroniclingamerica.loc.gov/ocr/). The batch we'll be working with is called `allspice`; it consists of the *Perth Amboy Evening News* from March 1903 to March 1907. Once downloaded, unzip the tarball; this will take a few more minutes. The result will show up as a single directory with the name "sn85035720": this is Chronicling America's ID for the *Perth Amboy Evening News*, so we'll leave it that way.
+The first step is to download a newspaper batch [from Chronicling America](https://chroniclingamerica.loc.gov/ocr/). The batch used here is called `allspice`; it consists of the *Perth Amboy Evening News* from March 1903 to March 1907. Once downloaded, unzip the tarball; this will take a few more minutes. The result will show up as a single directory with the name "sn85035720": this is Chronicling America's ID for the *Perth Amboy Evening News*, so we'll leave it that way. Any other single-paper Chronicling America batch will do just as well if you'd prefer to work with data from a different newspaper in a different time or place. Just make sure that [1] the batch includes enough page data to produce a good number of search results and [2] you change all instances of "sn85035720" to the ID of whatever other paper you choose.
 
 Before we get any further into the news, though, we should familiarize ourselves with fuzzy string matching.
 
@@ -90,9 +90,9 @@ By adding a length limit to our search hits, we can finally get rid of some more
 Our code will run slower, however, the more intricate our search gets. On a small dataset or even a large dataset and a lot of time, this might not be a problem. But even working with a few years of a single paper is a sizeable chunk of data: 9,632 pages containing around 38 million words that can take up over 540 Mb of memory. Furthermore, no matter how precise we get, at the end of the day fuzzy string matching is always a gamble: with enough data, we will always have false positives and false negatives.
 
 #Data Familiarity and Setting Up an Input Matrix
-Now let's turn to the *Perth Amboy Evening News*. Chronicling America datasets come highly structured; open up your downloads folder and familiarize yourself with it for a bit. You'll notice the file directory is structured something like this: "/Users/ahl80/Downloads/[paper ID]/[year]/[month]/[day]/[edition]/[page]". Once you get all the way to the bottom of things, you'll see two files: a plain old .txt file and an .xml file that indicates the position of the text on the page. 
+Now let's turn to the *Perth Amboy Evening News*. Chronicling America datasets come highly structured; open up your downloads folder and familiarize yourself with it for a bit. You'll notice the file directory is structured something like this: "/Users/elf/Downloads/[paper ID]/[year]/[month]/[day]/[edition]/[page]". Once you get all the way to the bottom of things, you'll see two files: a plain old .txt file and an .xml file that indicates the position of the text on the page. 
 
-The .txt file is the only one we want - and in fact, we *do not* want the .xml files, which take up tons of space. This next line of code uses wildcards to remove all files with the .xml extension within the exact number of directories specified by asterisk. Change the names or number of the directories prior to "sn85035720" to match the file path on your computer, but **do not** remove "sn85035720" or change anything after it: we don't want to go removing other things from your computer.
+The .txt file is the only one we want - and in fact, we *do not* want the .xml files, which take up tons of space. This next line of code uses wildcards to remove all files with the .xml extension within the exact number of directories specified by asterisk. Change the names or number of the directories prior to "sn85035720" to match the file path on your computer, but **do not** remove "sn85035720" (unless replacing it with the ID for a different newspaper you downloaded instead) or change anything after it: we don't want to go accidentally removing other things from your computer.
 
 ```{r}
 unlink(Sys.glob(file.path("/Users/elf/Downloads/sn85035720/*/*/*/*/*", "*.xml")))
@@ -176,7 +176,9 @@ for (k in seq_along(years)) {
 print(full_span[1:12,])
 ```
 
-Great: now we have a matrix of all the metadata we want to retain from the Chronicling America file structure. (Similarly, if we were working with multiple newspapers, we would start with using `list.files` to find all the directories in our downloads that start with "sn.")
+Great: now we have a matrix of all the metadata we want to retain from the Chronicling America file structure. 
+
+(If we were working with multiple newspapers, we would start by using `list.files` to find all the directories in our downloads that start with "sn." Then we would wrap an additional `for` loop around this one.)
 
 #Running a Search and Grabbing Collocates
 Now it's time to start putting things together. First we'll make our own function, `searchfun`, that takes a line of our input matrix - a year, a month, a day, and a page - and finds all approximate matches using the `agrep` code we wrote earlier. It needs to be written as a function because that way we can easily run it multiple times, i.e., for each page. But it does one other thing as well: it also returns the twenty strings on either side of each hit, or collocate strings. This takes little extra time and will come in very handy later. In this example, I've used postbellum American author Jack London as my search.
@@ -235,9 +237,9 @@ searchfun <- function (year, month, day, page) {
 }
 ```
 
-Now it's time to decide who or what two-word sequence to search for. To help decide, [bring up Chronicling America](https://chroniclingamerica.loc.gov/) before running your search. In the Advanced Search tab, select New Jersey under the State field and run a quick Phrase Search for the name or phrase you're considering to see how many hits you get. Ideally, in order to balance the amount of time this will take with the amount of data it'll produce, you should aim for someone or something with around 100 hits on Chronicling America.
+Now it's time to decide who or what two-word sequence to search for. To help decide, [bring up Chronicling America](https://chroniclingamerica.loc.gov/) before running your search. In the Advanced Search tab, select New Jersey under the State field and run a quick Phrase Search for the name or phrase you're considering to see how many hits you get. Ideally, in order to balance the amount of time this will take with the amount of data it'll produce, you should aim for someone or something with between 25 and 150 hits according to Chronicling America's search API.
 
-Once you've done that, change both instances of "jack" and "london" to the two names or words you've decided on and run the batch of code above.
+Once you've done that, change *both* instances of "jack" and "london" to the two names or words you've decided on and run the batch of code above.
 
 In order to make sure things don't take too long, we'll wrap our search function in another function that distributes the workload across multiple processor cores.
 
@@ -291,8 +293,6 @@ These look pretty good: four are explicitly about London's fiction (1, 3, 4, and
 
 Seven out of eight is pretty good, especially when the collocates are as clean as they are here: this additional word data will enrich any future analysis. Our high success rate of recovering false negatives might lead us to try a slightly fuzzier search. We could, for example, change the `agrep` `max.distance` to 2 for "london"; this might open the garbage floodgates, but it could recover enough additional false negatives to be worthwhile. Fuzzy string matching is always a matter of trial and error.
 
-![From the *Perth Amboy Evening News*, 11-17-1906, pg. 4](london_poem.png)
-
 The utility of fuzzy string matching can vary considerably based on [1] the distinctiveness of the desired character pattern, and [2] the messiness of the OCR data. The OCR for the *Perth Amboy Evening News* is comparatively clean for a newspaper - thanks to a lot of great work by Caryn Radick and the rest of the [New Jersey Digital Newspaper Project](https://blogs.libraries.rutgers.edu/njdnp/) team! - though still not as clean as, say, hathitrust.org scans of a magazine volume. It may be that fuzzy string matching isn't all that useful in a particular case, but you'll find that the payoff always increases as you increase the size of the newspaper dataset.
 
 The `write.csv` function will save the results to a .csv (a bare-bones spreadsheet) for fast and easy access in the future: change the name (but not the ".csv" extension) as desired. If you're planning on coming to Part 2 of this workshop, save this file to a flashdrive or cloud drive and you'll be able to pick up right where you left off.
@@ -301,6 +301,6 @@ The `write.csv` function will save the results to a .csv (a bare-bones spreadshe
 write.csv(hits, "name-this-file.csv")
 ```
 
-Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](bit.ly/graduatespecialistfeedbackdh).
+Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](https://rutgers.ca1.qualtrics.com/jfe/form/SV_e3OFcMS6wF3rdWJ).
 
 Thanks for participating!
