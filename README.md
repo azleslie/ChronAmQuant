@@ -3,7 +3,7 @@ These materials form a two-part, robust-yet-introductory workshop on text analys
 
 The first part introduces strategies for fuzzy string matching, using the OCR-derived text from the *Perth Amboy Evening News*. The second part begins with the results of the previous and explores a few possible methods for analyzing phrase use over time, page location, collocate words, and uniqueness.
 
-These workshops were originally offered during April 2018 at Rutgers University-New Brunswick at Alexander Library.
+These workshops were originally offered during April 2018 at Rutgers University-New Brunswick through the [New Brunswick Libraries Graduate Specialists program](https://libguides.rutgers.edu/graduatespecialist/workshops) and the [Rutgers DH Initiative](http://dh.rutgers.edu/).
 
 ## File Guide
 **ChronAm_Workshop_1.pdf** and **ChronAm_Workshop_2.pdf**
