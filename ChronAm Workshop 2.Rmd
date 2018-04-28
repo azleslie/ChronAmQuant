@@ -143,7 +143,7 @@ In order to compare references across multiple newspapers, we would need to thin
 
 # Page Data
 
-Not all references are created equal. Newspapers perform many different cultures functions, and as such they reference the same persons, events, or topics in several different contexts. Fortunately, the internal structure of newspapers generally reflects these contextual differences. In the period we're working with, this structure was organized by page. In order to make sense of page data, we would want to look at some issues of [the *Perth Amboy Evening News* itself](https://chroniclingamerica.loc.gov/lccn/sn85035720/) in a bit more detail. But for sake of time, I'll summarize.
+Not all references are created equal. Newspapers perform many different cultural functions, and as such they reference the same persons, events, or topics in several different contexts. Fortunately, the internal structure of newspapers generally reflects these contextual differences. In the period we're working with, this structure was organized by page. In order to make sense of page data, we would want to look at some issues of [the *Perth Amboy Evening News* itself](https://chroniclingamerica.loc.gov/lccn/sn85035720/) in a bit more detail. But for sake of time, I'll summarize.
 
 In the late nineteenth and early twentieth centuries, most newspapers were issued either weekly or daily. Daily papers, like the *Perth Amboy Evening News*, had a larger weekend edition (usually on Friday or Saturday) and usually didn't print one day of each week (often Sunday). By the turn of the century, weekly papers and the weekday editions of daily papers were moving towards eight-page issues; weekend editions fluctuated a bit more, between ten- and sixteen-page issues (the difference was largely contingent upon advertising). The format of all these newspapers, however, is actually quite similar, and we can draw several general rules.
 
@@ -286,7 +286,9 @@ You can probably already imagine the utility of comparative collocates analysis:
 
 # Uniqueness
 
-If not all references are created equal, at least some of them sure look identical. Nineteenth century newspapers regularly reprinted material, whether that material had been written for a previous issue of the same paper, paid for by an advertiser or subscriber, or taken from another newspaper (with or without attribution). Ascertaining the number of reprints - the degree of uniqueness of reference - is thereby another important means of analyzing broader patterns of relevence.
+If not all references are created equal, at least some of them sure look identical. Nineteenth century newspapers regularly reprinted material, whether that material had been written for a previous issue of the same paper, paid for by an advertiser or subscriber, or taken from another newspaper (with or without attribution). 
+
+But reprints aren't semantically meaningless!^[For two important, ongoing efforts to analyze the significance of reprinting in nineteenth-century newspapers, see Ryan Cordell and David A. Smith's [Viral Texts Project](http://viraltexts.org/) and M. H. Beals' [Scissors and Paste Database](http://scissorsandpaste.net/). See also McGill, Meredith. *American Literature and the Culture of Reprinting, 1834-1853*. Philadelphia: University of Pennsylvania Press, 2003.] They should never be excluded from data; rather, we should try to ascertain what kind of content and conditions cause an article referencing our name or phrase to be reprinted. Ascertaining the number of reprints - the degree of uniqueness of reference - is thereby another important means of analyzing broader patterns of relevence.
 
 Since our collocates data is as messy as the newpaper OCR it's drawn from, we can't just run an exact match. You guessed it: it's time to get fuzzy again, this time with `adist`, a function that measures the approximate distance (Levenshtein Distance) between any two strings.
 
@@ -333,11 +335,9 @@ hits[hits$Unique=="No",-7]
 kable(hits[hits$Unique=="No",7])
 ```
 
-For some searches, there may appear to be no reprinted material in the *Perth Amboy Evening News*. This result is misleading, however, when working with only one newspaper to begin with. It is almost certainly true, to take Jack London as an example, that the *Evening News*' announcements of magazines' contents for the month were reprints of the standard announcements found in newspapers across the country. Uniqueness analysis won't reflect this unless the data includes several newspapers, ideally five or six from the same time span.
+For some searches, there may appear to be no reprinted material in the *Perth Amboy Evening News*. This result is misleading, however, when working with only one newspaper to begin with. It is almost certainly true, to take Jack London as an example, that the *Evening News*' announcements of magazine contents for the month were reprints of the standard announcements found in newspapers across the country. Uniqueness analysis won't reflect this unless the data includes several newspapers, ideally five or six from the same time span.
 
 This is not the case, however, for references to the Russo-Japanese War. There are nine hits, mostly from the same month, that are clearly all the same reprint - not of news per se but of a particularly topical advertisement. 
-
-But reprints aren't semantically meaningless!^[See Ryan Cordell and David A. Smith's [Viral Texts Project](http://viraltexts.org/) and M. H. Beals' [Scissors and Paste Database](http://scissorsandpaste.net/) for two important, ongoing efforts to understand the significance of reprinting in nineteenth-century newspapers. See also McGill, Meredith. *American Literature and the Culture of Reprinting, 1834-1853*. Philadelphia: University of Pennsylvania Press, 2003.] They should never be excluded from data; rather, we should try to ascertain what kind of content and conditions cause an article referencing our name or phrase to be reprinted.
 
 To begin to do so, we can graph temporal distribution again with the addition of designating uniqueness as a categorical variable. When working with enough newspapers, this would illustrate the apprxoimate proportion of original references.
 

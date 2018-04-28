@@ -301,6 +301,6 @@ The `write.csv` function will save the results to a .csv (a bare-bones spreadshe
 write.csv(hits, "name-this-file.csv")
 ```
 
-Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](bit.ly/graduatespecialistfeedbackdh).
+Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](https://rutgers.ca1.qualtrics.com/jfe/form/SV_e3OFcMS6wF3rdWJ).
 
 Thanks for participating!
