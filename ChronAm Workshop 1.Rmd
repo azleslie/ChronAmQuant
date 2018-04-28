@@ -291,7 +291,7 @@ These look pretty good: four are explicitly about London's fiction (1, 3, 4, and
 
 Seven out of eight is pretty good, especially when the collocates are as clean as they are here: this additional word data will enrich any future analysis. Our high success rate of recovering false negatives might lead us to try a slightly fuzzier search. We could, for example, change the `agrep` `max.distance` to 2 for "london"; this might open the garbage floodgates, but it could recover enough additional false negatives to be worthwhile. Fuzzy string matching is always a matter of trial and error.
 
-![From the *Perth Amboy Evening News*, 11-17-1906, pg. 4](london_poem.png)
+![From the *Perth Amboy Evening News*, 11-17-1906, pg. 4](Page Images/london_poem.png)
 
 The utility of fuzzy string matching can vary considerably based on [1] the distinctiveness of the desired character pattern, and [2] the messiness of the OCR data. The OCR for the *Perth Amboy Evening News* is comparatively clean for a newspaper - thanks to a lot of great work by Caryn Radick and the rest of the [New Jersey Digital Newspaper Project](https://blogs.libraries.rutgers.edu/njdnp/) team! - though still not as clean as, say, hathitrust.org scans of a magazine volume. It may be that fuzzy string matching isn't all that useful in a particular case, but you'll find that the payoff always increases as you increase the size of the newspaper dataset.
 
