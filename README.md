@@ -5,6 +5,8 @@ The first part introduces strategies for fuzzy string matching, using the OCR-de
 
 These workshops were originally offered during April 2018 at Rutgers University-New Brunswick through the [New Brunswick Libraries Graduate Specialists program](https://libguides.rutgers.edu/graduatespecialist/workshops) and the [Rutgers DH Initiative](http://dh.rutgers.edu/).
 
+If you've found your way here via some other presentation of this material, such as the 2018 HathiTrust Research Center "Digging Deeper, Reaching Further" Series or the 2018 Seton Hall Digital Humanities Symposium, these files may look a bit different. Nothing to fear: this is the expanded and more hands-on-friendly iteration, from which all others derive.
+
 ## File Guide
 **ChronAm_Workshop_1.pdf** and **ChronAm_Workshop_2.pdf**
 These .pdf files are best for following along; they contain all code as well as sample outputs and figures.
