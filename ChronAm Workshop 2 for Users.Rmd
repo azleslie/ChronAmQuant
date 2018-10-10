@@ -36,7 +36,7 @@ Welcome! In this workshop we'll be exploring several different techniques for an
 We'll begin right where we left off at the end of Part 1 of this workshop, with the results of a fuzzy string search. If you attended Part 1 (or completed it on your own), you saved your results as a .csv file; locate that file now and deposit it into R's working directory. If you didn't attend Part 1, I've given you a few .csv files to choose from. Read it in to memory as `hits` by changing the file name in this line of code.
 
 ```{r}
-hits <- read.csv("spanish_american_war_sn85035720.csv") %>%
+hits <- read.csv("Sample Data/spanish_american_war_sn85035720.csv") %>%
   select(-X)
   # R adds an extra numeric identifier column when reading a .csv; this removes it
 ```
@@ -214,15 +214,15 @@ graph %>%
 With a bit of extra fiddling, we can generate a visualization to compare the distribution of references by page for multiple search phrases. If you downloaded all these files you'll be able to run this code yourself; if not, you can see the results in the .pdf file for this workshop.
 
 ```{r, echo=FALSE, warning=FALSE}
-hits1 <- read.csv("andrew_carnegie_sn85035720.csv") %>% mutate(Content = "Andrew Carnegie")
+hits1 <- read.csv("Sample Data/andrew_carnegie_sn85035720.csv") %>% mutate(Content = "Andrew Carnegie")
 hits1 <- hits1 %>% group_by(Content, Page) %>% summarize(Total=n()) %>% mutate(Page_Percents = Total/sum(Total)*100) 
-hits2 <- read.csv("theodore_roosevelt_sn85035720.csv") %>% mutate(Content = "Theodore Roosevelt")
+hits2 <- read.csv("Sample Data/theodore_roosevelt_sn85035720.csv") %>% mutate(Content = "Theodore Roosevelt")
 hits2 <- hits2 %>% group_by(Content, Page) %>% summarize(Total=n()) %>% mutate(Page_Percents = Total/sum(Total)*100)
-hits3 <- read.csv("russo_japanese_war_sn85035720.csv") %>% mutate(Content = "Russo-Japanese War") 
+hits3 <- read.csv("Sample Data/russo_japanese_war_sn85035720.csv") %>% mutate(Content = "Russo-Japanese War") 
 hits3 <- hits3 %>% group_by(Content, Page) %>% summarize(Total=n()) %>% mutate(Page_Percents = Total/sum(Total)*100)
-hits4 <- read.csv("spanish_american_war_sn85035720.csv") %>% mutate(Content = "Spanish-American War")
+hits4 <- read.csv("Sample Data/spanish_american_war_sn85035720.csv") %>% mutate(Content = "Spanish-American War")
 hits4 <- hits4 %>% group_by(Content, Page) %>% summarize(Total=n()) %>% mutate(Page_Percents = Total/sum(Total)*100)
-hits5 <- read.csv("booker_t_washington_sn85035720.csv") %>% mutate(Content = "Booker T. Washington")
+hits5 <- read.csv("Sample Data/booker_t_washington_sn85035720.csv") %>% mutate(Content = "Booker T. Washington")
 hits5 <- hits5 %>% group_by(Content, Page) %>% summarize(Total=n()) %>% mutate(Page_Percents = Total/sum(Total)*100)
 graph <- rbind(hits1, hits2, hits3, hits4, hits5)
 
