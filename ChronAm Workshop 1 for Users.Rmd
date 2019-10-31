@@ -1,7 +1,7 @@
 ---
-title: "Text Analysis with Newspapers, Part 1"
+title: "Text Mining Approaches with Historical Newspapers, Part 1"
 author: "[Alex Leslie](https://english.rutgers.edu/cb-profile/ahl80.html)"
-date: "March 13, 2018"
+date: "October 30, 2018"
 output: 
   pdf_document:
     toc: true
@@ -92,11 +92,13 @@ Our code will run slower, however, the more intricate our search gets. On a smal
 #Data Familiarity and Setting Up an Input Matrix
 Now let's turn to the *Perth Amboy Evening News*. Chronicling America datasets come highly structured; open up your downloads folder and familiarize yourself with it for a bit. You'll notice the file directory is structured something like this: "/Users/elf/Downloads/[paper ID]/[year]/[month]/[day]/[edition]/[page]". Once you get all the way to the bottom of things, you'll see two files: a plain old .txt file and an .xml file that indicates the position of the text on the page. 
 
-The .txt file is the only one we want - and in fact, we *do not* want the .xml files, which take up tons of space. This next line of code uses wildcards to remove all files with the .xml extension within the exact number of directories specified by asterisk. Change the names or number of the directories prior to "sn85035720" to match the file path on your computer, but **do not** remove "sn85035720" (unless replacing it with the ID for a different newspaper you downloaded instead) or change anything after it: we don't want to go accidentally removing other things from your computer.
+The .txt file is the only one we want - and in fact, we *do not* want the .xml files, which take up tons of space. This next line of code uses wildcards to remove all files with the .xml extension within the exact number of directories specified by asterisk. Change the names or number of the directories prior to "sn85035720" to match the file path on your computer, but **do not** remove "sn85035720" (unless replacing it with the ID for a different newspaper you downloaded instead) or change anything after it: we don't want to go accidentally removing other things from your computer. If you're not sure what the exact file path should look like, just find the "sn85035720" in your file viewer, right-click (Ctrl+click on Mac), and select "Properties" to view its location.
 
 ```{r}
 unlink(Sys.glob(file.path("/Users/elf/Downloads/sn85035720/*/*/*/*/*", "*.xml")))
 ```
+
+A brief note: downloading isn't the only way to access this data. Since Chronicling America hosts a plain text version of each page online as well, we could scrape those webpages instead. If you're interested in this approach, you might consult my [workshop on webscraping techniques](https://github.com/azleslie/WebscrapeTechniques).^[While scraping is a good way to obtain your own copy of the data or even to run moderate/test searches, it is much more efficient - and much kinder to Chronicling America's servers - to run code on copies of files rather than scraping each page for every query.]
 
 In order to run our search, we need to figure out the file paths for our data to the desired degree of metadata specificity. For starters, let's say we only want to keep track of the year and the month in which each hit occurs. We can find each month for which we have data (and the year to which that month belongs) with a simple `for` *loop*:
 
@@ -301,6 +303,8 @@ The `write.csv` function will save the results to a .csv (a bare-bones spreadshe
 write.csv(hits, "name-this-file.csv")
 ```
 
-Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](https://rutgers.ca1.qualtrics.com/jfe/form/SV_e3OFcMS6wF3rdWJ).
+If you’d like to look at this workshop in more detail or run the code on your own, visit https://github.com/azleslie/ChronAmQuant.
+
+Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](https://rutgers.ca1.qualtrics.com/jfe/form/SV_a3itiZN18dY3fc9).
 
 Thanks for participating!
