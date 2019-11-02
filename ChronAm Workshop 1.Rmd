@@ -94,7 +94,7 @@ By adding a length limit to our search hits, we can finally get rid of some more
 
 Our code will run slower, however, the more intricate our search gets. On a small dataset or even a large dataset and a lot of time, this might not be a problem. But even working with a few years of a single paper is a sizeable chunk of data: 9,632 pages containing around 38 million words that can take up over 540 Mb of memory. Furthermore, no matter how precise we get, at the end of the day fuzzy string matching is always a gamble: with enough data, we will always have false positives and false negatives.
 
-#Data Familiarity and Setting Up an Input Matrix
+#Data Familiarity and Setting Up an Input Vector
 Now let's turn to the *Perth Amboy Evening News*. Chronicling America datasets come highly structured; open up your downloads folder and familiarize yourself with it for a bit. You'll notice the file directory is structured something like this: "E:/Alexander/Downloads/[paper ID]/[year]/[month]/[day]/[edition]/[page]". Once you get all the way to the bottom of things, you'll see two files: a plain old .txt file and an .xml file that indicates the position of the text on the page.
 
 The .txt file is the only one we want - and in fact, we *do not* want the .xml files, which take up tons of space. This next line of code uses wildcards to remove all files with the .xml extension within the exact number of directories specified by asterisk. Change the names or number of the directories prior to "sn85035720" to match the file path on your computer (depending on your archive utility, you may have an additional directory in there by the name of "njr_allspace_ver02"). But **do not** remove "sn85035720" (unless replacing it with the ID for a different newspaper you downloaded instead) or change anything after it: we don't want to go removing other things from your computer. If you're not sure what the exact file path should look like, just find the "sn85035720" in your file viewer, right-click (Ctrl+click on Mac), and select "Properties" to view its location.
@@ -105,102 +105,62 @@ unlink(Sys.glob(file.path("E:/Alexander/Downloads/sn85035720/*/*/*/*/*", "*.xml"
 
 A brief note: downloading isn't the only way to access this data. Since Chronicling America hosts a plain text version of each page online as well, we could scrape those webpages instead. If you're interested in this approach, you might consult my [workshop on webscraping techniques](https://github.com/azleslie/WebscrapeTechniques).^[While scraping is a good way to obtain your own copy of the data or even to run moderate/test searches, it is much more efficient - and much kinder to Chronicling America's servers - to run code on copies of files rather than scraping each page for every query.]
 
-In order to run our search, we need to figure out the file paths for our data to the desired degree of metadata specificity. For starters, let's say we only want to keep track of the year and the month in which each hit occurs. We can find each month for which we have data (and the year to which that month belongs) with a simple `for` *loop*:
-
-```{r, tidy=TRUE, eval=TRUE}
-years <- list.files("E:/Alexander/Downloads/sn85035720")
-# a list of each year we have data for
-
-for (k in seq_along(years)) {
-  # for each year of data, we're going to...
-  
-  months <- list.files(paste("E:/Alexander/Downloads/sn85035720/", years[k], sep=""))
-  # ...make a vector that lists each month we have data for...
-  
-  one_year <- matrix(c(rep(years[k], each=length(months)), months), length(months))
-  # ...make a matrix where each month appears in its own row with the year...
-  
-  if (exists("full_span")) {
-    full_span <- rbind(full_span, one_year)
-  } else {
-    full_span <- one_year
-  }
-  # ...and then combine the matrix for that year with the matrix of all the other years
-}
-```
-
-The result (the first fourteen rows of it, that is) is a matrix that looks like this:
+In order to run our search, we need to figure out the file paths for each file of data. R has a convenient function for this: `list.dirs`. `list.dirs` returns every directory in a particular path. We can narrow things down, however, and only return the directories that are x degrees removed in our file tree. We don't even need to know exact names, because `list.dirs` supports wildcard matching with `*` to designate directories. An illustration should clarify:
 
 ```{r}
-print(full_span[1:12,])
+filepaths <- list.dirs(Sys.glob("E:/Alexander/Downloads/sn85035720/*/*/*/*/*"))
+filepaths[1:12]
 ```
 
-If we wanted a bit more finely grained analysis, keeping track of hits by day and not just by month, we can add a nested `for` loop. This is essentially just the same thing repeated: `days` does the same thing as `months` but for, well, days; `one_month` makes the result into a matrix just like `one_year` did, with the difference that our matrix would have three columns (one for each day).
+This vector is just about all the input R needs to read in a single page of data. Let's test it by reading in a sample page with `readLines`. Rather than specifying the exact name of the file (which we could just as easily do in this case, since we know that they're all called "ocr.txt"), we'll grab any .txt file(s) in the directory with the combination of the `Sys.glob` and `file.path` functions.
 
-```{r, tidy=TRUE, eval=FALSE}
-for (k in seq_along(years)) {
-  months <- list.files(paste("E:/Alexander/Downloads/sn85035720/", years[k], sep=""))
-  for (j in seq_along(months)) {
-    days <- list.files(paste("E:/Alexander/Downloads/sn85035720/", 
-                             years[k], "/", months[j], sep=""))
-    one_month <- matrix(c(rep(years[k], each=length(days)), 
-                          rep(months[j], each=length(days)), days), length(days))
-    if (exists("full_span")) {
-      full_span <- rbind(full_span, one_month)
-    } else {
-      full_span <- one_month
-    }
-  }
-}
+```{r}
+test_page <- readLines(Sys.glob(file.path(filepaths[1], "*.txt")))
 ```
 
-But we want to get even more precise and keep track of the page on which each hit occurs. (After all, page placement in a newspaper matters: it makes a difference whether something is printed on the front page or on the back page with all the ads.) So we just add another nested `for` loop:
+The metadata pertaining to each of the page .txt files isn't contained in the file names or even in the files themselves: we need to extract each piece of information from each file path. This can be done with the `strsplit` function by splitting wherever there is a `/` character.
 
-```{r, tidy=TRUE, eval=TRUE}
-rm(years, full_span)
-years <- list.files("E:/Alexander/Downloads/sn85035720")
-
-for (k in seq_along(years)) {
-  months <- list.files(paste("E:/Alexander/Downloads/sn85035720/", years[k], sep=""))
-  for (j in seq_along(months)) {
-    days <- list.files(paste("E:/Alexander/Downloads/sn85035720/", 
-                             years[k], "/", months[j], sep=""))
-    for (i in seq_along(days)) {
-      pages <- list.files(Sys.glob(paste("E:/Alexander/Downloads/sn85035720/", 
-                                  years[k], "/", months[j], "/", days[i], "/*",  sep="")))
-      one_day <- matrix(c(rep(years[k], each=length(pages)), 
-                          rep(months[j], each=length(pages)), 
-                          rep(days[i], each=length(pages)), pages), length(pages))
-      if (exists("full_span")) {
-        full_span <- rbind(full_span, one_day)
-      } else {
-        full_span <- one_day
-      }
-    }
-  }
-}
-
-print(full_span[1:12,])
+```{r}
+strsplit(filepaths[1:3], "/")
 ```
 
-Great: now we have a matrix of all the metadata we want to retain from the Chronicling America file structure. (Similarly, if we were working with multiple newspapers, we would start with using `list.files` to find all the directories in our downloads that start with "sn.")
+Note that the result is a series of vectors, one corresponding to each element of the filepaths vector, rather than one big vector with everything mashed together. This data format is called a *list*. When indexing a list, we use a double pair of brackets to index the vector and an additional single pair of brackets to index the element within that vector. Since the year is the fifth element of each vector, then, we would index the year of the first file as such:
+
+```{r}
+strsplit(filepaths[1], "/")[[1]][5]
+```
+
+Great: now we know how to get everything we want out of a single input vector. This will make our code efficient and clean. 
+
+There's one other useful thing to be done with file paths, and that is identifying the number of pages in each issue. Since each of our filepaths is the directory corresponding to a single page, we'll need to back up one directory. We can do this by manipulating each element of filepaths with `gsub`, to substitute everything (`(^.*)`) from the beginning of each file path to the part that reads `/seq-` followed by a digit (`\\d`) at the end (`$`). These are metacharacters that, in programming, are used to build *regular expressions*: expressions that refer to inexact yet consistent character patterns. No matter which element of filepaths we use this line of code on, it'll still work because they all follow the same pattern.
+
+```{r}
+gsub("(^.*)/seq-\\d+$", "\\1", filepaths[1])
+```
+
+Now, we just want to know how many files are in this directory. To do so we'll use `Sys.glob` again in conjunction with `list.files`. We don't really want to know the names of the files, though, just how many of them there are. This is what the `length` function does.
+
+```{r}
+length(list.files(Sys.glob(gsub("(^.*)/seq-\\d+$", "\\1", filepaths[1]))))
+```
+
+If we were working with multiple newspapers, we would simply change two things. First - and I do mean first - we would put all the newspaper directories into one big directory to make sure we didn't mess things up with our wildcards. Second, we would add the name of that big directory to our file path above and replace the "sn85035720" above with another `*`. (The indexed positions in the function below would need to change as well to reflect whatever additional changes were made.) But aside from that, the code would essentially remain the same.
 
 #Running a Search and Grabbing Collocates
-Now it's time to start putting things together. First we'll make our own function, `searchfun`, that takes a line of our input matrix - a year, a month, a day, and a page - and finds all approximate matches using the `agrep` code we wrote earlier. It needs to be written as a function because that way we can easily run it multiple times, i.e., for each page. But it does one other thing as well: it also returns the twenty strings on either side of each hit, or collocate strings. This takes little extra time and will come in very handy later. In this example, I've used postbellum American author Jack London as my search.
+Now it's time to start putting everything together. So far we've been using functions included in R. Now we'll write one of our own, `searchfun`, that takes an element of our input vector, reads in a page, finds all approximate matches using the `agrep` code we wrote two sections ago, and records the metadata for each result using the code from the previous section. 
+
+Our code needs to be written as a function because this way we can easily run it multiple times, i.e., for each page. But it does one other thing as well: it also returns the twenty strings on either side of each hit, or collocate strings. This takes little extra time and will come in very handy later; indeed, it's one of the biggest advantages to using our own code rather than relying on a search API. In this example, I've used postbellum American author Jack London as my search.
 
 ```{r, tidy=TRUE, warning=FALSE}
-searchfun <- function (year, month, day, page) { 
-  # the name of our function and the four variables it requires to run
+searchfun <- function (filepath) { 
+  # the name of our function and the variable it requires to run
   
-  file_path <- paste("E:/Alexander/Downloads/sn85035720/", 
-                     year, "/", month, "/", day, "/*/", page, sep="")
-  # first we assemble the file path to reach the page
+  one_page <- readLines(Sys.glob(file.path(filepath, "*.txt")))
+  # read any .txt file(s) in the filepath into memory as `one_page`
   
-  one_page <- unlist(strsplit(unlist(lapply(
-                        Sys.glob(file.path(file_path, "*.txt")), 
-                            readLines)), "\\W+"))   
+  one_page <- unlist(strsplit(one_page, "\\W+"))
   one_page <- tolower(one_page[one_page != ""]) 
-  # then read that page into memory, split it into words, and make everything lowercase
+  # split the page into words and make everything lowercase
   
   forename <- agrep("jack", one_page, max.distance=1)
   forename <- forename[which(nchar(one_page[forename]) < nchar("jack")+2)]
@@ -223,8 +183,7 @@ searchfun <- function (year, month, day, page) {
   # to avoid getting a negative subscript (i.e., when the desired string appears at the
   # start of a page)
   
-  tot_pg <- length(list.files(Sys.glob(paste("E:/Alexander/Downloads/sn85035720/", 
-                     year, "/", month, "/", day, "/*", sep=""))))
+  tot_pg <- length(list.files(Sys.glob(gsub("(^.*)/seq-\\d+$", "\\1", filepath))))
   # this finds the total number of page files for the issue; it'll be useful later
   
   rm(one_page, forename, surname)  
@@ -236,7 +195,11 @@ searchfun <- function (year, month, day, page) {
     # if there are no hits, nothing will happen
     
     } else {
-    return(data.frame(LCCN="sn85035720", Year=year, Month=month, Day=day, Page=page, 
+    return(data.frame(LCCN="sn85035720",
+                      Year=strsplit(filepath, "/")[[1]][5], 
+                      Month=strsplit(filepath, "/")[[1]][6], 
+                      Day=strsplit(filepath, "/")[[1]][7],
+                      Page=strsplit(filepath, "/")[[1]][9], 
                       Issue_Length=tot_pg, Collocates=I(collocates)))}
     # if there are hits, we return the date, page, issue length, and collocates for each
 }
@@ -249,15 +212,15 @@ Once you've done that, change both instances of "jack" and "london" to the two n
 In order to make sure things don't take too long, we'll wrap our search function in another function that distributes the workload across multiple processor cores.
 
 ```{r, warning=FALSE}
-decade_par <- function (input_matrix) {
-  core_num <- detectCores()-1
+decade_par <- function (input_vector) {
+  core_num <- detectCores()-2
   clust <- makeCluster(core_num, outfile="")
-  clusterExport(clust, varlist=c("input_matrix"), envir=environment())
+  clusterExport(clust, varlist=c("input_vector"), envir=environment())
   clusterExport(clust, varlist=c("searchfun"))
-  result <- do.call(rbind, parLapply(clust, seq_len(nrow(input_matrix)),
-                              function(x) do.call(searchfun, as.list(input_matrix[x,]))))
-  # this is where the magic happens: it runs `searchfun` once for each row of the 
-  # `input_matrix` and then binds the results together
+  result <- do.call(rbind, parLapply(clust, seq_along(input_vector),
+                              function(x) searchfun(input_vector[x])))
+  # this is where the magic happens: it runs `searchfun` once for each element of 
+  # `input_vector` and then binds the results together
   
   stopCluster(clust)
   return(result)
@@ -267,7 +230,7 @@ decade_par <- function (input_matrix) {
 Finally, let's run the actual search! This will take a couple minutes.
 
 ```{r}
-hits <- decade_par(full_span)
+hits <- decade_par(filepaths)
 ```
 
 Now if all has gone well, the output of this function, `hits`, will be a data frame in which each row contains the metadata and collocate string for each hit:
@@ -284,10 +247,10 @@ You may be wondering: how useful was fuzzy string matching after all? We can see
 nrow(hits) - length(grep("jack london", hits$Collocates))
 ```
 
-And now the follow-up question: are these extra hits actually matches or are they false positives? Let's take a look at their collocate strings. To do so, we'll use the `!` sign for negative indexing, to return all collocate strings that don't contain the exact character pattern "jack london"; then we'll split the big collocates string (with `strsplit`) into separate strings wherever there's a space (`" "`).
+And now the follow-up question: are these extra hits actually matches or are they false positives? Let's take a look at their collocate strings. To do so, we'll use the `-` sign for negative indexing, to return all collocate strings that don't contain the exact character pattern "jack london"; then we'll split the big collocates string (with `str_split`) into separate strings wherever there's a space (`" "`).
 
 ```{r}
-strsplit(hits$Collocates[!grepl("jack london", hits$Collocates)], " ")
+str_split(hits$Collocates[-grep("jack london", hits$Collocates)], " ")
 ```
 
 These look pretty good: four are explicitly about London's fiction (1, 3, 4, and 5), two are about London's own travel plans (6 and 7), and one particularly fun result is a poem about wanting London to write more (8) (Figure 1). Only one of these (2) is a false positive: it's a snippet called "London Tit-Bits" that just happens to be preceded by the word "back."
