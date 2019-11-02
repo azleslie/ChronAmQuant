@@ -46,12 +46,17 @@ test_vector <- c("murfree", "muurfree", "nurfree", "murfre", "murrfee", "murphee
 At least one of these words is perfectly correct ("murfree") and some of them are obviously not what we're looking for ("durpree"), but some of them are quite probably just OCR errors ("nurfree"). R has a conventional search function for exact *character patterns* (for our purposes, words): `grep`. Unsurprisingly, it doesn't do us much good here.
 
 ```{r}
+grep("murfree", test_vector)
+```
+
+`grep` returns a vector of the *numeric position* of each *element* in the specified vector in which our desired character pattern ("murfree") occurs. To return a vector of the strings themselves - the elements of `test_vector` and not just their numeric position - we *index* our vector of `search_hits` positions *into* our `test_vector` of strings, with brackets. 
+
+```{r}
 search_hits <- grep("murfree", test_vector)
-search_hits
 test_vector[search_hits]
 ```
 
-`grep` returns a vector of the *numeric position* of each *element* in the desired vector (`test_vector`) in which our desired character pattern ("murfree") occurs. To return a vector of the strings themselves - the elements of `test_vector` and not just their numeric position - we *index* our vector of `search_hits` positions *into* our `test_vector` of strings, with brackets. Note that `grep` also includes strings longer than our search pattern. This is basically the result we'd get if we searched for a particular word via the Chronicling America's search API. Thankfully, R has something much better for us: `agrep`.
+Note that `grep` also includes strings longer than our search pattern. This is basically the result we'd get if we searched for a particular word via the Chronicling America's search API. Thankfully, R has something much better for us: `agrep`.
 
 ```{r}
 search_hits <- agrep("murfree", test_vector, max.distance=2)
@@ -219,7 +224,7 @@ searchfun <- function (year, month, day, page) {
   # start of a page)
   
   tot_pg <- length(list.files(Sys.glob(paste("E:/Alexander/Downloads/sn85035720/", 
-                     year, "/", month, "/", day, "/*/", sep=""))))
+                     year, "/", month, "/", day, "/*", sep=""))))
   # this finds the total number of page files for the issue; it'll be useful later
   
   rm(one_page, forename, surname)  
@@ -268,11 +273,7 @@ hits <- decade_par(full_span)
 Now if all has gone well, the output of this function, `hits`, will be a data frame in which each row contains the metadata and collocate string for each hit:
 
 ```{r}
-if (nrow(hits) > 25) {
-  print(hits[1:25,])
-} else {
-  print(hits)
-}
+hits
 ```
 
 Nice and tidy data: this will make further analysis a breeze. Our work has paid off!
@@ -283,10 +284,10 @@ You may be wondering: how useful was fuzzy string matching after all? We can see
 nrow(hits) - length(grep("jack london", hits$Collocates))
 ```
 
-And now the follow-up question: are these extra hits actually matches or are they false positives? Let's take a look at their collocate strings. To do so, we'll use the `-` sign for negative indexing, to return all collocate strings that don't contain the exact character pattern "jack london"; then we'll split the big collocates string (with `str_split`) into separate strings wherever there's a space (" ").
+And now the follow-up question: are these extra hits actually matches or are they false positives? Let's take a look at their collocate strings. To do so, we'll use the `!` sign for negative indexing, to return all collocate strings that don't contain the exact character pattern "jack london"; then we'll split the big collocates string (with `strsplit`) into separate strings wherever there's a space (`" "`).
 
 ```{r}
-str_split(hits$Collocates[-grep("jack london", hits$Collocates)], " ")
+strsplit(hits$Collocates[!grepl("jack london", hits$Collocates)], " ")
 ```
 
 These look pretty good: four are explicitly about London's fiction (1, 3, 4, and 5), two are about London's own travel plans (6 and 7), and one particularly fun result is a poem about wanting London to write more (8) (Figure 1). Only one of these (2) is a false positive: it's a snippet called "London Tit-Bits" that just happens to be preceded by the word "back."
