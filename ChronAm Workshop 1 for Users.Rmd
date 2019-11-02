@@ -108,7 +108,7 @@ A brief note: downloading isn't the only way to access this data. Since Chronicl
 In order to run our search, we need to figure out the file paths for each file of data. R has a convenient function for this: `list.dirs`. `list.dirs` returns every directory in a particular path. We can narrow things down, however, and only return the directories that are x degrees removed in our file tree. We don't even need to know exact names, because `list.dirs` supports wildcard matching with `*` to designate directories. An illustration should clarify:
 
 ```{r}
-filepaths <- list.dirs(Sys.glob("/Alexander/Downloads/sn85035720/*/*/*/*/*"))
+filepaths <- list.dirs(Sys.glob("/Users/ref/Downloads/sn85035720/*/*/*/*/*"))
 filepaths[1:12]
 ```
 
