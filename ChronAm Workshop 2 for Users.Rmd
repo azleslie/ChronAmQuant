@@ -1,7 +1,7 @@
 ---
 title: "Text Analysis with Newspapers, Part 2"
 author: "[Alex Leslie](https://english.rutgers.edu/cb-profile/ahl80.html)"
-date: "March 13, 2018"
+date: "November 8, 2019"
 output: 
   pdf_document:
     toc: true
