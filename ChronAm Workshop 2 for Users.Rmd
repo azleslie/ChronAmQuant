@@ -356,6 +356,8 @@ If you'd like to keep the additional information we added to your `hits` data fr
 write.csv(hits, "name-this-file.csv")
 ```
 
-Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](https://rutgers.ca1.qualtrics.com/jfe/form/SV_e3OFcMS6wF3rdWJ).
+If you’d like to look at this workshop in more detail or run the code on your own, visit https://github.com/azleslie/ChronAmQuant.
+
+Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](https://rutgers.ca1.qualtrics.com/jfe/form/SV_a3itiZN18dY3fc9).
 
 Thanks for participating!

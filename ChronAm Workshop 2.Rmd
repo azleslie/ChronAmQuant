@@ -56,7 +56,7 @@ It should be added that the collocates here are not necessarilly from the articl
 
 One of the most useful and straightforward forms of quantitative analysis when it comes to working with data from periodicals is distribution of reference over time. First, let's simply make a bar graph of the raw number of references by month. Be sure to change the title of your graph by editing the text in the `ggtitle` function!
 
-```{r, warning=FALSE}
+```{r}
 plot <- hits %>%
   group_by(Year, Month) %>% 
   summarize(Total=n())
@@ -85,17 +85,17 @@ One way to measure significance of reference is frequency. Word frequency - the 
 
 There is a substantial difference in the number of pages the *Perth Amboy Evening News* printed per issue even between 1903 and 1907, the first and last year of our data - yet another reason why the raw number of references is limited. This means that while we have the number of pages in each issue for which there was a search hit, we'll need to go back to our filepaths in order to pick up the exact number of pages printed per month. You'll recognize this code as a slight adaptation of what we used in the previous workshop to generate an input matrix.
 
-```{r}
-years <- list.files("/Users/ahl80/Downloads/sn85035720")
+```{r, warning=FALSE}
+years <- list.files("E:/Alexander/Downloads/sn85035720")
 for (k in seq_along(years)) {
-  months <- list.files(paste("/Users/ahl80/Downloads/sn85035720/", years[k], sep=""))
+  months <- list.files(paste("E:/Alexander/Downloads/sn85035720/", years[k], sep=""))
   for (j in seq_along(months)) {
     date <- as.Date(paste(years[k], months[j], "01", sep="-"), format="%Y-%m-%d")
     # this line and the next are the only two that have really changed; we only need the 
     # year and month in date format, so we paste them together instead
     
-    pages <- length(list.files(Sys.glob(paste("/Users/ahl80/Downloads/sn85035720/", 
-                             years[k], "/", months[j], "/*/*/", sep=""))))
+    pages <- length(list.files(Sys.glob(paste("E:/Alexander/Downloads/sn85035720/", 
+                             years[k], "/", months[j], "/*/*", sep=""))))
     # the length of the list of all files contained within the particular month directory
     
     one_month <- data.frame(Date = date, Pages = pages)
@@ -110,7 +110,7 @@ for (k in seq_along(years)) {
 
 Before generating another visualization, we'll combine the metadata we just obtained with the simplified hits data used for the previous visualization. You'll want to edit the text in `ggtitle` again as well.
 
-```{r}
+```{r, warning=FALSE}
 freq <- merge(by_month, plot, by="Date", all=TRUE)
 # merge the data frame containing the total number of pages with the data frame of simpli-
 # -fied hits data by the Date column, which they share
@@ -369,6 +369,8 @@ If you'd like to keep the additional information we added to your `hits` data fr
 write.csv(hits, "name-this-file.csv")
 ```
 
-Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](https://rutgers.ca1.qualtrics.com/jfe/form/SV_e3OFcMS6wF3rdWJ).
+If you’d like to look at this workshop in more detail or run the code on your own, visit https://github.com/azleslie/ChronAmQuant.
+
+Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](https://rutgers.ca1.qualtrics.com/jfe/form/SV_a3itiZN18dY3fc9).
 
 Thanks for participating!
