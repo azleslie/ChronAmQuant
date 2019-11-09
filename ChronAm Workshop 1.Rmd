@@ -43,20 +43,20 @@ test_vector <- c("murfree", "muurfree", "nurfree", "murfre", "murrfee", "murphee
                  "durpree", "free", "smurffree", "murfreesboro", "marymurfree")
 ```
 
-At least one of these words is perfectly correct ("murfree") and some of them are obviously not what we're looking for ("durpree"), but some of them are quite probably just OCR errors ("nurfree"). R has a conventional search function for exact *character patterns* (for our purposes, words): `grep`. Unsurprisingly, it doesn't do us much good here.
+At least one of these words is perfectly correct ("murfree") and some of them are obviously not what we're looking for ("durpree"), but some of them are quite probably just OCR errors ("nurfree"). R has a conventional search function for exact *character patterns* (for our purposes, words): `grep`.
 
 ```{r}
 grep("murfree", test_vector)
 ```
 
-`grep` returns a vector of the *numeric position* of each *element* in the specified vector in which our desired character pattern ("murfree") occurs. To return a vector of the strings themselves - the elements of `test_vector` and not just their numeric position - we *index* our vector of `search_hits` positions *into* our `test_vector` of strings, with brackets. 
+`grep` returns a vector of the *numeric position* of each *element* in the specified vector in which our desired character pattern ("murfree") occurs. To return a vector of the strings themselves - the elements of `test_vector` and not just their numeric position - we'll save our hits positions as the vector `search_hits` and then *index* that vector *into* our `test_vector` of strings, with brackets. 
 
 ```{r}
 search_hits <- grep("murfree", test_vector)
 test_vector[search_hits]
-```
+``` 
 
-Note that `grep` also includes strings longer than our search pattern. This is basically the result we'd get if we searched for a particular word via the Chronicling America's search API. Thankfully, R has something much better for us: `agrep`.
+Unsurprisingly, `grep` doesn't do us much good here. Note that it also includes strings longer than our search pattern. This is basically the result we'd get if we searched for a particular word via the Chronicling America's search API. Thankfully, R has something much better for us: `agrep`.
 
 ```{r}
 search_hits <- agrep("murfree", test_vector, max.distance=2)
@@ -114,7 +114,7 @@ filepaths[1:12]
 
 This vector is just about all the input R needs to read in a single page of data. Let's test it by reading in a sample page with `readLines`. Rather than specifying the exact name of the file (which we could just as easily do in this case, since we know that they're all called "ocr.txt"), we'll grab any .txt file(s) in the directory with the combination of the `Sys.glob` and `file.path` functions.
 
-```{r}
+```{r, warning=FALSE}
 test_page <- readLines(Sys.glob(file.path(filepaths[1], "*.txt")))
 ```
 
